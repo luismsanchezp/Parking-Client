@@ -15,6 +15,88 @@
 <body>
     <div class="container">
         <button id="bLogin" type="button" class="btn btn-success mt-3">Login</button>
+
+        <h1 class="mt-3 mb-4">Create Ticket</h1>
+
+        <div class="mb-3">
+            <button id="bLoadParkingLots" type="button" class="btn btn-primary">Load Parking Lots</button>
+            <br></br>
+            <label for="current_parkinglots">Choose a Parking Lot: </label>
+            <select name="user-parkinglots" id="current_parkinglots">
+                <option value="None">None</option>
+            </select>
+            <button id="bLoadParkingSpot" type="button" class="btn btn-primary">Load Parking Spots</button>
+        </div>
+        <div class="mb-3">
+            <label for="gov_id" class="form-label">Customer ID</label>
+            <input type="text" class="form-control" id="gov_id">
+            <button id="bShowVehicles" type="button" class="btn btn-primary">Load Vehicles</button>
+        </div>
+        <div class="mb-3"><label for="vehicle">Choose a vehicle:</label>
+            <select name="customer_vehicles" id="vehicle">
+                <option value="None">None</option>
+            </select>
+        </div>
+
+        <div class="mb-3"><label for="parkingspot">Choose a parking spot:</label>
+            <select name="free_parkingspot" id="parkingspot">
+                <option value="None">None</option>
+            </select>
+        </div>
+
+        <button id="bAdd" type="button" class="btn btn-primary">Add</button>
+        <button id="bClear" type="button" class="btn btn-secondary">Clear</button>
+
+        <h1 class="mt-5 mb-4">Available Spots List</h1>
+
+        <table id="parkinglots-list" class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Row</th>
+                <th scope="col">Column</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">ID</th>
+                <td>ROW</td>
+                <td>COLUMN</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <br></br>
+        <h1 class="mt-3 mb-4">Unpark vehicle</h1>
+        <div class="mb-3">
+            <label for="license_plate" class="form-label">License Plate</label>
+            <input type="text" class="form-control" id="license_plate">
+        </div>
+
+        <button id="bShowVehicleTicket" type="button" class="btn btn-primary">Load Vehicle Ticket</button>
+
+        <h1 class="mt-5 mb-4">Ticket Information</h1>
+
+        <table id="ticket-info" class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Entry Date</th>
+                <th scope="col">Parking Spot</th>
+                <th scope="col">Customer Gov ID</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">ID</th>
+                <td>ROW</td>
+                <td>COLUMN</td>
+                <td>GOV ID</td>
+            </tr>
+            </tbody>
+        </table>
+        <h1 class="mt-5 mb-4">Unpark Vehicle</h1>
+        <button id="bUnpark" type="button" class="btn btn-primary">Unpark Vehicle</button>
     </div>
 
     <!-- Login modal dialog -->
@@ -29,11 +111,11 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="login_email" class="form-label">Email</label>
-                        <input type="text" value="jimezam@autonoma.edu.co" class="form-control" id="login_email">
+                        <input type="text" value="vienna@gmail.com" class="form-control" id="login_email">
                     </div>
                     <div class="mb-3">
                         <label for="login_password" class="form-label">Password</label>
-                        <input type="password" value="hola123" class="form-control" id="login_password">
+                        <input type="password" value="vienna22*" class="form-control" id="login_password">
                     </div>
                 </div>
                 <div class="modal-footer">

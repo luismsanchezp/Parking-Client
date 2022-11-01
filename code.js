@@ -1,7 +1,7 @@
 /* Here comes the Javascript code */
 
 // Update the REST API server's URL
-const url = "http://192.168.1.69:8000/api/v1/";
+const url = "http://127.0.0.1:8000/api/v1/";
 
 // List of records loaded from API REST
 var records = [];
@@ -20,17 +20,23 @@ window.onload = function () {
 
     const bLogin = document.getElementById("bLogin");
     const bLoginAccept = document.getElementById("blogin-accept");
+    const bLoadParkingLots = document.getElementById("bLoadParkingLots");
+    const bLoadParkingSpot = document.getElementById("bLoadParkingSpot");
+    const bShowVehicles = document.getElementById("bShowVehicles");
     const bAdd = document.getElementById("bAdd");
     const bClear = document.getElementById("bClear");
-    const bDelete = document.getElementById("bDelete");
-    const bReload = document.getElementById("bReload");
+    const bShowVehicleTicket = document.getElementById("bShowVehicleTicket");
+    const bUnpark = document.getElementById("bUnpark");
 
     bLogin.addEventListener("click", handleLogin);
     bLoginAccept.addEventListener("click", handleLogin);
-    bAdd.addEventListener("click", addRecord);
+    bLoadParkingLots.addEventListener("click", loadParkingLotsList);
+    bLoadParkingSpot.addEventListener("click", );
+    bShowVehicles.addEventListener("click", );
+    bAdd.addEventListener("click", );
     bClear.addEventListener("click", clearForm);
-    bDelete.addEventListener("click", deleteRecord);
-    bReload.addEventListener("click", reloadList);
+    bShowVehicleTicket.addEventListener("click", );
+    bUnpark.addEventListener("click", );
 };
 
 /**
@@ -73,7 +79,34 @@ function handleLogin(event) {
  */
 
 async function login() {
-    // Here comes the code ...
+    var emailValue = document.getElementById("login_email").value;
+    var passwordValue = document.getElementById("login_password").value;
+
+    const params = {
+        email : emailValue,
+        password : passwordValue
+    };
+
+    const response = await fetch(url + "login", {
+        method : "POST",
+        headers : {
+            'Content-Type' : 'application/json',
+            'Accept' : 'application/json'
+        },
+        body : JSON.stringify(params)
+    });
+
+    const answer = await response.json();
+    if (response.status == 200)
+    {
+        var token = answer.token;
+        localStorage.setItem('token', token);
+        console.log("ok");
+    }
+    else
+    {
+        alert("Error logging : " + response.statusText);
+    }
 }
 
 /**
@@ -81,7 +114,49 @@ async function login() {
  */
 
 async function logout() {
-    // Here comes the code ...
+    const response = await fetch(url + "logout", {
+        method : "POST",
+        headers : {
+            'Content-Type' : 'application/json',
+            'Accept' : 'application/json',
+            'Authorization' : 'Bearer' + localStorage.getItem('token')
+        },
+
+    });
+
+    if(response.status == 200)
+    {
+        localStorage.removeItem('token');
+        console.log("Ok");
+    }
+    else
+    {
+        alert("Error logging out: " + response.statusText);
+    }
+}
+
+async function loadParkingLotsList() {
+
+    const response = await fetch(url + "parkinglots", {
+        method : "GET",
+        headers : {
+            'Content-Type' : 'application/json',
+            'Accept' : 'application/json',
+            'Authorization' : 'Bearer' + localStorage.getItem('token')
+        }
+    })
+
+    var selectBody = document.getElementById("current_parkinglots")
+    records = response.data;
+    selectBody.innerHTML = "";
+
+    records.forEach(function (item, index) {
+        var opt = item.name;
+        var el = document.createElement("option");
+        el.textContent = opt;
+        el.value = opt;
+        selectBody.appendChild(el);
+    })
 }
 
 /**
