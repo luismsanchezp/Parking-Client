@@ -31,12 +31,18 @@ window.onload = function () {
     bLogin.addEventListener("click", handleLogin);
     bLoginAccept.addEventListener("click", handleLogin);
     bLoadParkingLots.addEventListener("click", loadParkingLotsList);
+    /*
     bLoadParkingSpot.addEventListener("click", );
     bShowVehicles.addEventListener("click", );
     bAdd.addEventListener("click", );
+
+     */
     bClear.addEventListener("click", clearForm);
+    /*
     bShowVehicleTicket.addEventListener("click", );
     bUnpark.addEventListener("click", );
+
+     */
 };
 
 /**
@@ -137,7 +143,7 @@ async function logout() {
 
 async function loadParkingLotsList() {
 
-    const response = await fetch(url + "parkinglots", {
+    const response = await fetch(url + "users/1/parkinglots", {
         method : "GET",
         headers : {
             'Content-Type' : 'application/json',
@@ -145,9 +151,11 @@ async function loadParkingLotsList() {
             'Authorization' : 'Bearer' + localStorage.getItem('token')
         }
     })
+        .then((response) => response.json())
+        .then((data) => data.data)
 
     var selectBody = document.getElementById("current_parkinglots")
-    records = response.data;
+    records = await response;
     selectBody.innerHTML = "";
 
     records.forEach(function (item, index) {
