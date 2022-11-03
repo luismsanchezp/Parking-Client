@@ -30,10 +30,12 @@ window.onload = function () {
 
     bLogin.addEventListener("click", handleLogin);
     bLoginAccept.addEventListener("click", handleLogin);
-    bLoadParkingLots.addEventListener("click", loadParkingLotsList);
+    bLoadParkingLots.addEventListener("click", fillParkingLotsList);
+
+    bLoadParkingSpot.addEventListener("click", fillParkingSpotsList);
+
+    bShowVehicles.addEventListener("click", fillCustomerInfoTable);
     /*
-    bLoadParkingSpot.addEventListener("click", );
-    bShowVehicles.addEventListener("click", );
     bAdd.addEventListener("click", );
 
      */
@@ -125,7 +127,7 @@ async function logout() {
         headers : {
             'Content-Type' : 'application/json',
             'Accept' : 'application/json',
-            'Authorization' : 'Bearer' + localStorage.getItem('token')
+            'Authorization' : 'Bearer ' + localStorage.getItem('token')
         },
 
     });
@@ -141,30 +143,213 @@ async function logout() {
     }
 }
 
-async function loadParkingLotsList() {
-
-    const response = await fetch(url + "users/1/parkinglots", {
+async function getUserId() {
+    const response = await fetch(url + "token", {
         method : "GET",
         headers : {
             'Content-Type' : 'application/json',
             'Accept' : 'application/json',
-            'Authorization' : 'Bearer' + localStorage.getItem('token')
+            'Authorization' : 'Bearer ' + localStorage.getItem('token')
         }
     })
         .then((response) => response.json())
         .then((data) => data.data)
-
-    var selectBody = document.getElementById("current_parkinglots")
     records = await response;
-    selectBody.innerHTML = "";
+    if (records == undefined) {
+        throw new Error('User is not logged in');
+    } else {
+        return records.id;
+    }
+}
 
-    records.forEach(function (item, index) {
-        var opt = item.name;
-        var el = document.createElement("option");
-        el.textContent = opt;
-        el.value = opt;
-        selectBody.appendChild(el);
+async function getApiParkingLots() {
+    try {
+        var user_id = await getUserId();
+    } catch (err) {
+        alert("User is not logged in.");
+        return null;
+    }
+
+    const response = await fetch(url + "users/"+user_id+"/parkinglots", {
+        method : "GET",
+        headers : {
+            'Content-Type' : 'application/json',
+            'Accept' : 'application/json'
+        }
     })
+        .then((response) => response.json())
+        .then((data) => data.data)
+    return response;
+}
+
+async function clearParkingLotsList() {
+    var selectBody = document.getElementById("current_parkinglots")
+    selectBody.innerHTML = "";
+    var option = document.createElement("option");
+    option.textContent = "Choose a parking lot";
+    option.value = "None";
+    selectBody.appendChild(option);
+}
+
+async function fillParkingLotsList() {
+    await clearParkingLotsList();
+    records = await getApiParkingLots();
+    if (records != null) {
+        var selectBody = document.getElementById("current_parkinglots");
+        records.forEach(function (item, index) {
+            var opt = item.name;
+            var el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            selectBody.appendChild(el);
+        })
+    }
+}
+
+async function getParkingLotId() {
+    const listParkingLots = document.getElementById("current_parkinglots");
+    const current_value = listParkingLots.options[listParkingLots.selectedIndex].value;
+    if (current_value != "None"){
+        const response = await fetch(url + "parkinglots?name=" + current_value, {
+            method : "GET",
+            headers : {
+                'Content-Type' : 'application/json',
+                'Accept' : 'application/json'
+            }
+        })
+            .then((response) => response.json())
+            .then((data) => data.data)
+        records = await response;
+        return records[0].id;
+    } else {
+        alert("Choose a Parking Lot first");
+        return null;
+    }
+
+}
+
+async function getFreeParkingSpots(parking_lot_id) {
+    const response = await fetch(url + "parkinglots/"
+        + parking_lot_id + "/parkingspots?free_spots=TRUE", {
+        method : "GET",
+        headers : {
+            'Content-Type' : 'application/json',
+            'Accept' : 'application/json',
+            'Authorization' : 'Bearer ' + localStorage.getItem('token')
+        }
+    })
+        .then((response) => response.json())
+        .then((data) => data.data)
+    records = await response;
+    return records;
+}
+
+async function clearParkingSpotsList() {
+    var selectBody = document.getElementById("parkingspots")
+    selectBody.innerHTML = "";
+    var option = document.createElement("option");
+    option.textContent = "Choose a parking spot";
+    option.value = "None";
+    selectBody.appendChild(option);
+}
+
+async function fillParkingSpotsList() {
+    await clearParkingSpotsList();
+    var current_parking_lot_id = await getParkingLotId();
+    if (current_parking_lot_id != null) {
+        const parking_spots = await getFreeParkingSpots(current_parking_lot_id);
+        if (parking_spots != undefined) {
+            var selectBody = document.getElementById("parkingspots");
+
+            parking_spots.forEach(function (item, index) {
+                var opt = "("+item.row+", "+item.column+")";
+                var el = document.createElement("option");
+                el.textContent = opt;
+                el.value = opt;
+                selectBody.appendChild(el);
+            })
+        }
+    }
+}
+
+async function getCustomerInfo() {
+    const listParkingLots = document.getElementById("current_parkinglots");
+    const current_value = listParkingLots.options[listParkingLots.selectedIndex].value;
+
+    if (current_value != "None"){
+        var current_parking_lot_id = await getParkingLotId();
+        if (current_parking_lot_id != null) {
+            const cus_gov_id = document.getElementById("gov_id").value;
+
+            if (cus_gov_id !=  "") {
+                if (!isNaN(cus_gov_id)) {
+                    const response = await fetch(url + "parkinglots/"
+                        + current_parking_lot_id + "/persons?govid="+cus_gov_id, {
+                        method : "GET",
+                        headers : {
+                            'Content-Type' : 'application/json',
+                            'Accept' : 'application/json',
+                            'Authorization' : 'Bearer ' + localStorage.getItem('token')
+                        }
+                    })
+                        .then((response) => response.json())
+                        .then((data) => data.data)
+                    records = await response;
+                    if (records != "Customer not found."){
+                        return records;
+                    } else {
+                        alert("Cannot find customer");
+                        return null;
+                    }
+
+                } else {
+                    alert("Customer ID is not a number");
+                    return null;
+                }
+            } else {
+                alert("Customer ID is empty");
+                return null;
+            }
+        }
+    } else {
+        alert("Choose a Parking Lot first");
+        return null;
+    }
+}
+
+async function clearCustomerInfoTable() {
+    var tableBody = document.getElementById("customer_info");
+    tableBody.innerHTML = "";
+    var newRow = tableBody.insertRow(tableBody.rows.length);
+
+    var idCell = newRow.createElement('th');
+    var rowCell = newRow.createElement('th');
+    var columnCell = newRow.createElement('th');
+
+    idCell.innerHTML = "Gov ID";
+    idCell.scope = 'col';
+    rowCell.innerHTML = "Name";
+    rowCell.scope = 'col';
+    columnCell.innerHTML = "Surname";
+    columnCell.scope = 'col';
+}
+
+async function fillCustomerInfoTable() {
+    await clearCustomerInfoTable();
+    const customer = await getCustomerInfo();
+    console.log("fuck me ", customer);
+    if (customer != null) {
+        var tableBody = document.getElementById("customer_info");
+        var newRow = tableBody.insertRow(tableBody.rows.length);
+
+        var idCell = newRow.insertCell(0);
+        var rowCell = newRow.insertCell(1);
+        var columnCell = newRow.insertCell(2);
+
+        idCell.innerHTML = customer.gov_id;
+        rowCell.innerHTML = customer.name;
+        columnCell.innerHTML = customer.surname;
+    }
 }
 
 /**
